@@ -8,7 +8,12 @@ const bindEvents = (el, events = {}, context) => {
   Object.keys(events).forEach((eventKey) => {
     const elements = el.querySelectorAll(`[app-event="${eventKey}"]`);
     elements.forEach((element) => {
-      element.addEventListener("click", events[eventKey].bind(context));
+        element.addEventListener('click', (e) => {
+            if (e.target === element) {
+                events[eventKey].call(context, e);
+            }
+            }
+        );      
     });
   });
 };
