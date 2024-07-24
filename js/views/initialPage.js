@@ -7,13 +7,20 @@ export const component = (function(){
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
       </select>
-      <button app-event="mockClick">Start</button>
+      <button app-event="startGame">Start</button>
     </div>
   `;
 
   const events = {
-    mockClick() {
-      console.log('Mock click event');
+    startGame() {
+      const playerName = document.getElementById('player-name').value;
+      const level = document.getElementById('level-select').value;
+
+      localStorage.setItem('playerName', playerName);
+      localStorage.setItem('level-select', level);
+
+      // pseudo code: change view
+      // eventBus.emit('startGame')
     }
   }
 
