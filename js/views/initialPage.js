@@ -1,3 +1,5 @@
+import { eventBus } from '../modules/eventBus.js';
+
 export const component = (function(){
   const template = `
     <div id="initial-page">
@@ -19,8 +21,7 @@ export const component = (function(){
       localStorage.setItem('playerName', playerName);
       localStorage.setItem('level-select', level);
 
-      // pseudo code: change view
-      // eventBus.emit('startGame')
+      eventBus.emit('startGame')
     }
   }
 
