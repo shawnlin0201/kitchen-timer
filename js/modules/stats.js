@@ -5,10 +5,12 @@ export class Stats {
       medium: [],
       hard: []
     };
+    this.loadRecords();
   }
 
   addRecord(level, record) {
     this.records[level].push(record);
+    this.saveRecords();
   }
 
   getStats() {
@@ -44,5 +46,16 @@ export class Stats {
     if (records.length === 0) return null;
     const sum = records.reduce((total, record) => total + record, 0);
     return sum / records.length;
+  }
+
+  saveRecords() {
+    localStorage.setItem('gameStats', JSON.stringify(this.records));
+  }
+
+  loadRecords() {
+    const savedRecords = JSON.parse(localStorage.getItem('gameStats'));
+    if (savedRecords) {
+      this.records = savedRecords;
+    }
   }
 }

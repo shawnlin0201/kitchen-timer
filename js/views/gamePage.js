@@ -2,6 +2,8 @@ import { Timer } from "../modules/timer.js";
 import { Stats } from "../modules/stats.js";
 import { eventBus } from '../modules/eventBus.js';
 
+const stats = new Stats();
+
 export const component = (function () {
   const template = `
     <div id="game-page">
@@ -26,17 +28,16 @@ export const component = (function () {
     </div>
   `;
   const data = {
-    gameStats: null,
     gameTimer: null,
     gameStartTime: 0,
     currentTargetTime: 0,
   };
 
   const formatTime = (time) => {
-    if(!time) {
+    if (time === null) {
       return '-';
     } else if (time === 0) {
-      return `±0 seconds`;
+      return '±0 seconds';
     } else if (time > 0) {
       return `+${time.toFixed(1)} seconds`;
     } else {
@@ -68,7 +69,6 @@ export const component = (function () {
       }, 3500);
     },
     startRecord() {
-      data.gameStats = new Stats();
       data.gameStartTime = performance.now();
       data.gameTimer = new Timer(
         data.currentTargetTime,
@@ -98,43 +98,48 @@ export const component = (function () {
         "target-time"
       ).innerText = `Target Time: ${data.currentTargetTime} seconds`;
     },
-    stopGame() {},
+    stopGame() {
+      if (data.gameTimer) {
+        data.gameTimer.stop();
+        data.gameTimer = null;
+      }
+    },
     calcTimer() {
-      const elapsedTime = (performance.now() - data.gameStartTime) / 1000;
-      const result = parseFloat(
-        (elapsedTime - data.currentTargetTime).toFixed(1)
-      );
-      const formattedResult = formatTime(result);
-      const modal = document.getElementById("modal");
-      const modalContent = document.querySelector(".modal-content");
+      if (data.gameTimer) {
+        const elapsedTime = (performance.now() - data.gameStartTime) / 1000;
+        const result = parseFloat(
+          (elapsedTime - data.currentTargetTime).toFixed(1)
+        );
+        const formattedResult = formatTime(result);
+        const modal = document.getElementById("modal");
+        const modalContent = document.querySelector(".modal-content");
 
-      modal.style.display = "flex";
-      modalContent.innerHTML = `
-        <p>Your time: ${elapsedTime.toFixed(1)} seconds</p>
-        <p>Result: ${formattedResult}</p>
-      `;
-      data.gameStats.addRecord(localStorage.getItem("level-select"), result);
-      data.gameTimer = null;
+        modal.style.display = "flex";
+        modalContent.innerHTML = `
+          <p>Your time: ${elapsedTime.toFixed(1)} seconds</p>
+          <p>Result: ${formattedResult}</p>
+        `;
+        stats.addRecord(localStorage.getItem("level-select"), result);
+        data.gameTimer = null;
+      }
     },
     showStats() {
       const modal = document.getElementById("modal");
       const modalContent = document.querySelector(".modal-content");
       modal.style.display = "flex";
 
-      const stat = data.gameStats.getStats();
-      let template = ''
-      for (const level in stat) {
-        template += `
-          <h3>${level.charAt(0).toUpperCase() + level.slice(1)}</h3>
-          <p>Best Record: ${formatTime(stat[level].bestRecord)}</p>
-          <p>Recent Record: ${formatTime(stat[level].recentRecord)}</p>
-          <p>Average Time: ${formatTime(stat[level].averageTime)}</p>
-        `;
-      }
+      const statsData = stats.getStats();
+      const levels = ['easy', 'medium', 'hard'];
+      const statsTemplate = levels.map(level => `
+        <h3>${level}</h3>
+        <p>Best Record: ${formatTime(statsData[level].bestRecord)}</p>
+        <p>Recent Record: ${formatTime(statsData[level].recentRecord)}</p>
+        <p>Average Time: ${formatTime(statsData[level].averageTime)}</p>
+      `).join('');
       modalContent.innerHTML = `
         <div>
           <h2>Player Statistics</h2>
-          ${template}
+          ${statsTemplate}
         </div>
       `;
     },
@@ -142,7 +147,7 @@ export const component = (function () {
       const modal = document.getElementById("modal");
       modal.style.display = "none";
     },
-    returnSelectLevel(){
+    returnSelectLevel() {
       eventBus.emit('returnSelectLevel');
     }
   };
