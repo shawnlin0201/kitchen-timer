@@ -11,3 +11,7 @@ eventBus.on('startGame', () => {
   renderView('#app-container', gamePage);
   gamePage.methods.startGame();
 });
+
+eventBus.on('returnSelectLevel', () => {
+  renderView('#app-container', initialPage);
+});

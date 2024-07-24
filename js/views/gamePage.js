@@ -1,4 +1,6 @@
 import { Timer } from "../modules/timer.js";
+import { Stats } from "../modules/stats.js";
+import { eventBus } from '../modules/eventBus.js';
 
 export const component = (function () {
   const template = `
@@ -7,6 +9,7 @@ export const component = (function () {
         <button app-event="stopGame">Stop</button>
         <button app-event="calcTimer">It’s Now!</button>
         <button app-event="showStats">Stats</button>
+        <button app-event="returnSelectLevel">select level</button>
       </div>
       <div id="timer">0.0</div>
       <div id="target-time"></div>
@@ -23,9 +26,22 @@ export const component = (function () {
     </div>
   `;
   const data = {
+    gameStats: null,
     gameTimer: null,
     gameStartTime: 0,
     currentTargetTime: 0,
+  };
+
+  const formatTime = (time) => {
+    if(!time) {
+      return '-';
+    } else if (time === 0) {
+      return `±0 seconds`;
+    } else if (time > 0) {
+      return `+${time.toFixed(1)} seconds`;
+    } else {
+      return `${time.toFixed(1)} seconds`;
+    }
   };
 
   const methods = {
@@ -52,6 +68,7 @@ export const component = (function () {
       }, 3500);
     },
     startRecord() {
+      data.gameStats = new Stats();
       data.gameStartTime = performance.now();
       data.gameTimer = new Timer(
         data.currentTargetTime,
@@ -83,15 +100,6 @@ export const component = (function () {
     },
     stopGame() {},
     calcTimer() {
-      const formatTime = (time) => {
-        if (time === 0) {
-          return `±0 seconds`;
-        } else if (time > 0) {
-          return `+${time.toFixed(1)} seconds`;
-        } else {
-          return `${time.toFixed(1)} seconds`;
-        }
-      }
       const elapsedTime = (performance.now() - data.gameStartTime) / 1000;
       const result = parseFloat(
         (elapsedTime - data.currentTargetTime).toFixed(1)
@@ -105,23 +113,38 @@ export const component = (function () {
         <p>Your time: ${elapsedTime.toFixed(1)} seconds</p>
         <p>Result: ${formattedResult}</p>
       `;
+      data.gameStats.addRecord(localStorage.getItem("level-select"), result);
       data.gameTimer = null;
     },
     showStats() {
       const modal = document.getElementById("modal");
       const modalContent = document.querySelector(".modal-content");
-
       modal.style.display = "flex";
+
+      const stat = data.gameStats.getStats();
+      let template = ''
+      for (const level in stat) {
+        template += `
+          <h3>${level.charAt(0).toUpperCase() + level.slice(1)}</h3>
+          <p>Best Record: ${formatTime(stat[level].bestRecord)}</p>
+          <p>Recent Record: ${formatTime(stat[level].recentRecord)}</p>
+          <p>Average Time: ${formatTime(stat[level].averageTime)}</p>
+        `;
+      }
       modalContent.innerHTML = `
-        <h2>Game Over</h2>
-        <p>Your time: 0.0 seconds</p>
-        <p>Result: 0.0</p>
+        <div>
+          <h2>Player Statistics</h2>
+          ${template}
+        </div>
       `;
     },
     close() {
       const modal = document.getElementById("modal");
       modal.style.display = "none";
     },
+    returnSelectLevel(){
+      eventBus.emit('returnSelectLevel');
+    }
   };
 
   return {
