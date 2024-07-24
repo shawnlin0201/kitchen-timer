@@ -1,7 +1,7 @@
 export const renderView = (target, component) => {
   const el = document.querySelector(target);
   el.innerHTML = component.template;
-  bindEvents(el, component.events, component);
+  bindEvents(el, component.methods, component);
 };
 
 const bindEvents = (el, events = {}, context) => {

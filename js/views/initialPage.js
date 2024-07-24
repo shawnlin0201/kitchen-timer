@@ -13,7 +13,7 @@ export const component = (function(){
     </div>
   `;
 
-  const events = {
+  const methods = {
     startGame() {
       const playerName = document.getElementById('player-name').value;
       const level = document.getElementById('level-select').value;
@@ -27,6 +27,6 @@ export const component = (function(){
 
   return {
     template,
-    events
+    methods,
   }
 })()

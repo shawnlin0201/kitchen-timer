@@ -1,5 +1,3 @@
-import { eventBus } from '../modules/eventBus.js';
-
 export const component = (function(){
   const template = `
     <div id="game-page">
@@ -14,20 +12,17 @@ export const component = (function(){
     </div>
   `;
 
-  const events = {
+  const methods = {
+    startGame(){},
     stopGame(){},
     recordTime(){},
     showStats(){},
-  }
-
-  const methods = {
-    startGame(){},
   }
 
 
 
   return {
     template,
-    events,
+    methods,
   }
 })()
