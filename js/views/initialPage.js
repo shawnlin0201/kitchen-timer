@@ -7,10 +7,18 @@ export const component = (function(){
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
       </select>
-      <button>Start</button>
+      <button app-event="mockClick">Start</button>
     </div>
   `;
+
+  const events = {
+    mockClick() {
+      console.log('Mock click event');
+    }
+  }
+
   return {
-    template
+    template,
+    events
   }
 })()
