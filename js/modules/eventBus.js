@@ -9,6 +9,14 @@
 class EventBus {
     constructor() {
       this.events = {};
+      this.state = {};
+    }
+    getState(key) {
+      return this.state[key];
+    }
+
+    setState(key, value) {
+      this.state[key] = value;
     }
 
     on(event, listener) {

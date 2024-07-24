@@ -27,6 +27,7 @@ export const component = (function () {
       </div>
     </div>
   `;
+
   const data = {
     gameTimer: null,
     gameStartTime: 0,
@@ -119,23 +120,30 @@ export const component = (function () {
           <p>Your time: ${elapsedTime.toFixed(1)} seconds</p>
           <p>Result: ${formattedResult}</p>
         `;
-        stats.addRecord(localStorage.getItem("level-select"), result);
+        stats.addRecord(localStorage.getItem("playerName"), localStorage.getItem("level-select"), result);
         data.gameTimer = null;
       }
     },
     showStats() {
+      const playerName = localStorage.getItem("playerName");
       const modal = document.getElementById("modal");
       const modalContent = document.querySelector(".modal-content");
       modal.style.display = "flex";
 
-      const statsData = stats.getStats();
+      const statsData = stats.getStats(playerName);
       const levels = ['easy', 'medium', 'hard'];
-      const statsTemplate = levels.map(level => `
-        <h3>${level}</h3>
-        <p>Best Record: ${formatTime(statsData[level].bestRecord)}</p>
-        <p>Recent Record: ${formatTime(statsData[level].recentRecord)}</p>
-        <p>Average Time: ${formatTime(statsData[level].averageTime)}</p>
-      `).join('');
+      const statsTemplate = levels.map(level => {
+        const bestRecord = statsData[level].bestRecord;
+        const bestPlayer = bestRecord ? bestRecord.playerName : '-';
+        const recentRecord = statsData[level].recentRecord;
+        const averageTime = statsData[level].averageTime;
+        return `
+          <h3>${level}</h3>
+          <p>Best Record: ${formatTime(bestRecord ? bestRecord.record : null)} (${bestPlayer})</p>
+          <p>Recent Record: ${formatTime(recentRecord ? recentRecord.record : null)}</p>
+          <p>Average Record: ${formatTime(averageTime)}</p>
+        `;
+      }).join('');
       modalContent.innerHTML = `
         <div>
           <h2>Player Statistics</h2>

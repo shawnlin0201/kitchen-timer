@@ -5,57 +5,48 @@ export class Stats {
       medium: [],
       hard: []
     };
-    this.loadRecords();
   }
 
-  addRecord(level, record) {
-    this.records[level].push(record);
+  addRecord(playerName, level, record) {
+    this.records[level].push({ playerName, record });
     this.saveRecords();
   }
 
-  getStats() {
+  getStats(playerName) {
     return {
-      easy: this.generateStats('easy'),
-      medium: this.generateStats('medium'),
-      hard: this.generateStats('hard')
+      easy: this.generateStats('easy', playerName),
+      medium: this.generateStats('medium', playerName),
+      hard: this.generateStats('hard', playerName)
     };
   }
 
-  generateStats(level) {
+  generateStats(level, playerName) {
+    const playerRecords = this.records[level].filter(record => record.playerName === playerName);
     return {
       bestRecord: this.calculateBestRecord(level),
-      recentRecord: this.calculateRecentRecord(level),
-      averageTime: this.calculateAverageTime(level)
+      recentRecord: this.calculateRecentRecord(playerRecords),
+      averageTime: this.calculateAverageTime(playerRecords)
     };
   }
 
   calculateBestRecord(level) {
     const records = this.records[level];
     if (records.length === 0) return null;
-    return records.reduce((best, record) => Math.abs(record) < Math.abs(best) ? record : best, records[0]);
+    return records.reduce((best, record) => Math.abs(record.record) < Math.abs(best.record) ? record : best, records[0]);
   }
 
-  calculateRecentRecord(level) {
-    const records = this.records[level];
+  calculateRecentRecord(records) {
     if (records.length === 0) return null;
     return records[records.length - 1];
   }
 
-  calculateAverageTime(level) {
-    const records = this.records[level];
+  calculateAverageTime(records) {
     if (records.length === 0) return null;
-    const sum = records.reduce((total, record) => total + record, 0);
+    const sum = records.reduce((total, record) => total + record.record, 0);
     return sum / records.length;
   }
 
   saveRecords() {
     localStorage.setItem('gameStats', JSON.stringify(this.records));
-  }
-
-  loadRecords() {
-    const savedRecords = JSON.parse(localStorage.getItem('gameStats'));
-    if (savedRecords) {
-      this.records = savedRecords;
-    }
   }
 }
