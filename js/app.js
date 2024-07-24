@@ -9,4 +9,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 eventBus.on('startGame', () => {
   renderView('#app-container', gamePage);
+  gamePage.methods.startGame();
 });
